@@ -36,7 +36,7 @@ class AlbumsHandler {
         await this._service.updateAlbumById(id, request.payload);
         return {
             status: 'success',
-            message: 'Berhasil update data'
+            message: 'Berhasil memperbarui album'
         };
     }
 
@@ -45,7 +45,7 @@ class AlbumsHandler {
         await this._service.deleteAlbumById(id);
         return {
             status: 'success',
-            message: 'Album berhasil dihapus'
+            message: 'Berhasil menghapus album'
         };
     }
 }

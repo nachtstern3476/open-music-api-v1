@@ -7,7 +7,7 @@ const SongsValidator = {
         const validationResult = SongPayloadSchema.validate(payload);
         console.log(validationResult);
         if (validationResult.error) {
-            throw new InvariantError('Data tidak valid');
+            throw new InvariantError('Request data tidak valid');
         }
     }
 };

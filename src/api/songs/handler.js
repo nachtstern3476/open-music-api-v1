@@ -43,7 +43,7 @@ class SongsHandler {
         await this._service.updateSongById(id, request.payload);
         return {
             status: 'success',
-            message: 'Berhasil update lagu'
+            message: 'Berhasil memperbarui lagu'
         };
     }
 
@@ -52,7 +52,7 @@ class SongsHandler {
         await this._service.deleteSongById(id);
         return {
             status: 'success',
-            message: 'Berhasil update lagu'
+            message: 'Berhasil menghapus lagu'
         };
     }
 }

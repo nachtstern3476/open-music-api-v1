@@ -17,7 +17,7 @@ class AlbumsService {
         };
 
         const result = await this._pool.query(query).catch(e => {
-            throw new ClientError('Gagal menambahkan album');
+            throw new ClientError('Gagal menambahkan album, harap coba lagi');
         });
 
         return result.rows[0].id;
@@ -31,7 +31,7 @@ class AlbumsService {
 
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new NotFoundError('Album tidak ditemukan');
+            throw new NotFoundError(`Album dengan id '${id}' tidak ditemukan`);
         }
 
         const songQuery = {
@@ -40,10 +40,6 @@ class AlbumsService {
         };
 
         const songs = await this._pool.query(songQuery);
-        if (!result.rows.length) {
-            throw new NotFoundError('Songs dengan album tidak ditemukan');
-        }
-
         result.rows[0].songs = songs.rows;
         return result.rows[0];
     }
@@ -55,11 +51,11 @@ class AlbumsService {
         };
 
         const result = await this._pool.query(query).catch(e => {
-            throw new ClientError('Gagal update album');
+            throw new ClientError('Gagal memperbarui album, harap coba lagi');
         });
 
         if (!result.rows.length) {
-            throw new NotFoundError('Album tidak ditemukan');
+            throw new NotFoundError(`Album dengan id '${id}' tidak ditemukan`);
         }
     }
 
@@ -70,11 +66,11 @@ class AlbumsService {
         };
 
         const result = await this._pool.query(query).catch(e => {
-            throw new ClientError('Album gagal dihapus');
+            throw new ClientError('Gagal menghapus album, harap coba lagi');
         });
 
         if (!result.rows.length) {
-            throw new NotFoundError('Id tidak ditemukan');
+            throw new NotFoundError(`Album dengan id '${id}' tidak ditemukan`);
         }
     }
 }
