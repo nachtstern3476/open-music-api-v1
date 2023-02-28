@@ -22,32 +22,33 @@ const init = async () => {
         }
     });
 
-    await server.register({
-        plugin: albums,
-        options: {
-            service: albumsService,
-            validator: AlbumsValidator
+    await server.register([
+        {
+            plugin: albums,
+            options: {
+                service: albumsService,
+                validator: AlbumsValidator
+            }
+        },
+        {
+            plugin: songs,
+            options: {
+                service: songsService,
+                validator: SongsValidator
+            }
         }
-    });
-
-    await server.register({
-        plugin: songs,
-        options: {
-            service: songsService,
-            validator: SongsValidator
-        }
-    });
+    ]);
 
     server.ext('onPreResponse', function (request, h) {
         const { response } = request;
         if (response instanceof Error) {
             if (response instanceof ClientError) {
                 const newResponse = h.response({
-                    status: 'error',
+                    status: 'fail',
                     message: response.message
                 });
 
-                newResponse.code(response.statusCode);
+                newResponse.code(response.code);
                 return newResponse;
             }
 
