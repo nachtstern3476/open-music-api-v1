@@ -6,7 +6,7 @@ const AlbumsValidator = {
         const validationResult = AlbumPayloadSchema.validate(payload);
 
         if (!validationResult) {
-            throw new InvariantError();
+            throw new InvariantError('Data tidak valid');
         }
     }
 };
