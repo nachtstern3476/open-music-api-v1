@@ -1,13 +1,13 @@
 
 const InvariantError = require('../../execption/InvariantError');
-const { songPayloadSchema } = require('./scheme');
+const { SongPayloadSchema } = require('./scheme');
 
 const SongsValidator = {
     validateSongPayload: (payload) => {
-        const validationResult = songPayloadSchema.validate(payload);
-
-        if (!validationResult) {
-            throw new InvariantError();
+        const validationResult = SongPayloadSchema.validate(payload);
+        console.log(validationResult);
+        if (validationResult.error) {
+            throw new InvariantError('Data tidak valid');
         }
     }
 };
