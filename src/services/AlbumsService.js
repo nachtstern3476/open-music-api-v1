@@ -34,6 +34,17 @@ class AlbumsService {
             throw new NotFoundError('Album tidak ditemukan');
         }
 
+        const songQuery = {
+            text: 'SELECT id, title, performer FROM songs WHERE "albumId"=$1',
+            values: [id]
+        };
+
+        const songs = await this._pool.query(songQuery);
+        if (!result.rows.length) {
+            throw new NotFoundError('Songs dengan album tidak ditemukan');
+        }
+
+        result.rows[0].songs = songs.rows;
         return result.rows[0];
     }
 
