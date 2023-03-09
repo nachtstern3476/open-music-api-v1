@@ -19,12 +19,18 @@ const authentications = require('./api/authentications');
 const AuthenticationsValidator = require('./validator/authentications');
 const AuthenticationsService = require('./services/AuthenticationsService');
 
+const playlist = require('./api/playlists');
+const PlaylistsValidator = require('./validator/playlists');
+const PlaylistService = require('./services/PlaylistsService');
+
 const ClientError = require('./execption/ClientError');
 const init = async () => {
     const albumsService = new AlbumsService();
     const songsService = new SongsService();
     const usersService = new UsersService();
     const authenticationsService = new AuthenticationsService();
+    const playlistsService = new PlaylistService();
+
     const server = Hapi.server({
         host: process.env.HOST,
         port: process.env.PORT,
@@ -37,7 +43,7 @@ const init = async () => {
 
     await server.register(Jwt);
 
-    server.auth.strategy('openmusic_jwt_strategy', 'jwt', {
+    server.auth.strategy('openmusic_jwt', 'jwt', {
         keys: process.env.ACCESS_TOKEN_KEY,
         verify: {
             aud: false,
@@ -83,6 +89,14 @@ const init = async () => {
                 tokenManager: TokenManager,
                 validator: AuthenticationsValidator
             }
+        },
+        {
+            plugin: playlist,
+            options: {
+                playlistsService,
+                songsService,
+                validator: PlaylistsValidator
+            }
         }
     ]);
 
@@ -109,6 +123,7 @@ const init = async () => {
             });
 
             newResponse.code(500);
+            console.log(response);
             return newResponse;
         }
 
