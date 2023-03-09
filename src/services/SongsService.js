@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const ClientError = require('../execption/ClientError');
+const InvariantError = require('../execption/InvariantError');
 const NotFoundError = require('../execption/NotFoundError');
 
 class SongsService {
@@ -17,7 +17,7 @@ class SongsService {
 
         const result = await this._pool.query(query);
         if (!result.rowCount) {
-            throw new ClientError('Gagal menambahkan lagu, harap coba lagi');
+            throw new InvariantError('Gagal menambahkan lagu, harap coba lagi');
         }
 
         return result.rows[0].id;
