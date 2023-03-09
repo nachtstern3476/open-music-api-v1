@@ -1,7 +1,6 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
-const ClientError = require('../execption/ClientError');
 const InvariantError = require('../execption/InvariantError');
 const AuthenticationError = require('../execption/AuthenticationError');
 
@@ -20,9 +19,10 @@ class UsersService {
             values: [id, username, hashedPassword, fullname]
         };
 
-        const result = await this._pool.query(query).catch(e => {
-            throw new ClientError('Gagal menambahkan user, harap coba lagi');
-        });
+        const result = await this._pool.query(query);
+        if (!result.rowCount) {
+            throw new InvariantError('Gagal menambahkan user, harap coba lagi');
+        }
 
         return result.rows[0].id;
     }

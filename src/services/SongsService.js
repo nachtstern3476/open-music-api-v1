@@ -15,9 +15,10 @@ class SongsService {
             values: [id, title, year, genre, performer, duration, albumId]
         };
 
-        const result = await this._pool.query(query).catch(e => {
+        const result = await this._pool.query(query);
+        if (!result.rowCount) {
             throw new ClientError('Gagal menambahkan lagu, harap coba lagi');
-        });
+        }
 
         return result.rows[0].id;
     }
@@ -40,12 +41,9 @@ class SongsService {
             values = [`%${title}%`, `%${performer}%`];
         }
 
-        const query = {
-            text,
-            values
-        };
-        const { rows } = await this._pool.query(query);
-        return rows;
+        const query = { text, values };
+        const result = await this._pool.query(query);
+        return result.rows;
     }
 
     async getSongById (id) {
@@ -68,10 +66,7 @@ class SongsService {
             values: [title, year, genre, performer, duration, albumId, id]
         };
 
-        const result = await this._pool.query(query).catch(e => {
-            throw new ClientError('Gagal memperbarui lagu, harap coba lagi');
-        });
-
+        const result = await this._pool.query(query);
         if (!result.rowCount) {
             throw new NotFoundError(`Lagu dengan id '${id}' tidak ditemukan`);
         }
@@ -83,10 +78,7 @@ class SongsService {
             values: [id]
         };
 
-        const result = await this._pool.query(query).catch(e => {
-            throw new ClientError('Gagal menghapus lagu, harap coba lagi');
-        });
-
+        const result = await this._pool.query(query);
         if (!result.rowCount) {
             throw new NotFoundError(`Lagu dengan id '${id}' tidak ditemukan`);
         }
