@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const InvariantError = require('../execption/InvariantError');
 const AuthenticationError = require('../execption/AuthenticationError');
+const NotFoundError = require('../execption/NotFoundError');
 
 class UsersService {
     constructor () {
@@ -10,7 +11,7 @@ class UsersService {
     }
 
     async addUser ({ username, password, fullname }) {
-        await this.checkDuplicateUsername(username);
+        await this.validateDuplicateUsername(username);
 
         const id = `user-${nanoid(16)}`;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,14 +28,26 @@ class UsersService {
         return result.rows[0].id;
     }
 
-    async checkDuplicateUsername (username) {
+    async validateUserId (userId) {
+        const query = {
+            text: 'SELECT * FROM users WHERE id=$1',
+            values: [userId]
+        };
+
+        const result = await this._pool.query(query);
+        if (!result.rowCount) {
+            throw new NotFoundError(`User dengan id '${userId}' tidak ditemukan`);
+        }
+    }
+
+    async validateDuplicateUsername (username) {
         const query = {
             text: 'SELECT * FROM users WHERE username=$1',
             values: [username]
         };
 
         const result = await this._pool.query(query);
-        if (result.rowCount > 0) {
+        if (!result.rowCount) {
             throw new InvariantError('Gagal menambahkan user. Username telah digunakan');
         }
     }

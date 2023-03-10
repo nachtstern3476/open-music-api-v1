@@ -19,9 +19,13 @@ const authentications = require('./api/authentications');
 const AuthenticationsValidator = require('./validator/authentications');
 const AuthenticationsService = require('./services/AuthenticationsService');
 
-const playlist = require('./api/playlists');
+const playlists = require('./api/playlists');
 const PlaylistsValidator = require('./validator/playlists');
 const PlaylistService = require('./services/PlaylistsService');
+
+const collaborations = require('./api/collaborations');
+const CollaborationsValidator = require('./validator/collaborations');
+const CollaborationsService = require('./services/CollaborationsService');
 
 const ClientError = require('./execption/ClientError');
 const init = async () => {
@@ -29,7 +33,8 @@ const init = async () => {
     const songsService = new SongsService();
     const usersService = new UsersService();
     const authenticationsService = new AuthenticationsService();
-    const playlistsService = new PlaylistService();
+    const collaborationsService = new CollaborationsService();
+    const playlistsService = new PlaylistService(collaborationsService);
 
     const server = Hapi.server({
         host: process.env.HOST,
@@ -91,11 +96,20 @@ const init = async () => {
             }
         },
         {
-            plugin: playlist,
+            plugin: playlists,
             options: {
                 playlistsService,
                 songsService,
                 validator: PlaylistsValidator
+            }
+        },
+        {
+            plugin: collaborations,
+            options: {
+                collaborationsService,
+                playlistsService,
+                usersService,
+                validator: CollaborationsValidator
             }
         }
     ]);
@@ -123,7 +137,6 @@ const init = async () => {
             });
 
             newResponse.code(500);
-            console.log(response);
             return newResponse;
         }
 
