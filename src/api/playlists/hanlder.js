@@ -1,9 +1,10 @@
 const autoBind = require('auto-bind');
 
 class PlaylistsHandler {
-    constructor (playlistsService, songsService, validator) {
+    constructor (playlistsService, songsService, activitiesService, validator) {
         this._playlistsService = playlistsService;
         this._songsService = songsService;
+        this._activitiesService = activitiesService;
         this._validator = validator;
 
         autoBind(this);
@@ -56,6 +57,7 @@ class PlaylistsHandler {
         const { songId } = request.payload;
         await this._songsService.getSongById(songId);
         await this._playlistsService.addPlaylistsSong(playlistId, songId);
+        await this._activitiesService.addActivities(credentialId, playlistId, songId, 'add');
 
         const response = h.response({
             status: 'success',
@@ -65,7 +67,22 @@ class PlaylistsHandler {
         return response;
     }
 
-    async getPlaylistsSongsHandler (request, h) {
+    async getPlaylistsActivitiesHandler (request) {
+        const { id: credentialId } = request.auth.credentials;
+        const { id: playlistId } = request.params;
+        await this._playlistsService.validatePlaylistAccess(playlistId, credentialId);
+
+        const activities = await this._activitiesService.getActivities(playlistId);
+        return {
+            status: 'success',
+            data: {
+                playlistId,
+                activities
+            }
+        };
+    }
+
+    async getPlaylistsSongsHandler (request) {
         const { id: credentialId } = request.auth.credentials;
         const { id: playlistId } = request.params;
         await this._playlistsService.validatePlaylistAccess(playlistId, credentialId);
@@ -86,6 +103,7 @@ class PlaylistsHandler {
 
         await this._playlistsService.validatePlaylistAccess(playlistId, credentialId);
         await this._playlistsService.deletePlaylistSong(playlistId, songId);
+        await this._activitiesService.addActivities(credentialId, playlistId, songId, 'delete');
 
         return {
             status: 'success',

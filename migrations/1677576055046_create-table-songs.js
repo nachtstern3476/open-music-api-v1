@@ -24,7 +24,7 @@ exports.up = pgm => {
             type: 'INT',
             notNull: false
         },
-        albumId: {
+        album_id: {
             type: 'TEXT',
             notNull: false
         }

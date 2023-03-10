@@ -27,6 +27,7 @@ const collaborations = require('./api/collaborations');
 const CollaborationsValidator = require('./validator/collaborations');
 const CollaborationsService = require('./services/CollaborationsService');
 
+const ActivitiesService = require('./services/ActivitiesService');
 const ClientError = require('./execption/ClientError');
 const init = async () => {
     const albumsService = new AlbumsService();
@@ -35,6 +36,7 @@ const init = async () => {
     const authenticationsService = new AuthenticationsService();
     const collaborationsService = new CollaborationsService();
     const playlistsService = new PlaylistService(collaborationsService);
+    const activitiesService = new ActivitiesService();
 
     const server = Hapi.server({
         host: process.env.HOST,
@@ -100,6 +102,7 @@ const init = async () => {
             options: {
                 playlistsService,
                 songsService,
+                activitiesService,
                 validator: PlaylistsValidator
             }
         },

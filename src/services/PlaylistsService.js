@@ -53,7 +53,7 @@ class PlaylistsService {
 
     async addPlaylistsSong (playlistId, songId) {
         const query = {
-            text: 'INSERT INTO playlists_songs (playlist_id, song_id) VALUES($1, $2) RETURNING id',
+            text: 'INSERT INTO playlist_songs (playlist_id, song_id) VALUES($1, $2) RETURNING id',
             values: [playlistId, songId]
         };
 
@@ -75,8 +75,8 @@ class PlaylistsService {
         const querySongs = {
             text: `SELECT songs.id, songs.title, songs.performer
                 FROM songs
-                LEFT JOIN playlists_songs ON songs.id = playlists_songs.song_id
-                WHERE playlists_songs.playlist_id =$1`,
+                LEFT JOIN playlist_songs ON songs.id = playlist_songs.song_id
+                WHERE playlist_songs.playlist_id =$1`,
             values: [id]
         };
 
@@ -89,7 +89,7 @@ class PlaylistsService {
 
     async deletePlaylistSong (id, songId) {
         const query = {
-            text: 'DELETE FROM playlists_songs WHERE playlist_id=$1 AND song_id=$2 RETURNING id',
+            text: 'DELETE FROM playlist_songs WHERE playlist_id=$1 AND song_id=$2 RETURNING id',
             values: [id, songId]
         };
 
