@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const config = require('./utils/config');
 
 const albums = require('./api/albums');
 const AlbumsValidator = require('./validator/albums');
@@ -39,8 +40,8 @@ const init = async () => {
     const activitiesService = new ActivitiesService();
 
     const server = Hapi.server({
-        host: process.env.HOST,
-        port: process.env.PORT,
+        host: config.app.host,
+        port: config.app.port,
         routes: {
             cors: {
                 origin: ['*']
