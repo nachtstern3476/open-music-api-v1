@@ -48,7 +48,7 @@ class PlaylistsHandler {
     }
 
     async postPlaylistsSongsHandler (request, h) {
-        await this._validator.validatePlaylistsSongPayload(request.payload);
+        this._validator.validatePlaylistsSongPayload(request.payload);
 
         const { id: credentialId } = request.auth.credentials;
         const { id: playlistId } = request.params;
@@ -95,7 +95,7 @@ class PlaylistsHandler {
     }
 
     async deletePlaylistsSongsHandler (request, h) {
-        await this._validator.validatePlaylistsSongPayload(request.payload);
+        this._validator.validatePlaylistsSongPayload(request.payload);
 
         const { id: credentialId } = request.auth.credentials;
         const { id: playlistId } = request.params;
