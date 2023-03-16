@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const InvariantError = require('../execption/InvariantError');
-const NotFoundError = require('../execption/NotFoundError');
+const InvariantError = require('../../execption/InvariantError');
+const NotFoundError = require('../../execption/NotFoundError');
 
 class AlbumsService {
     constructor () {

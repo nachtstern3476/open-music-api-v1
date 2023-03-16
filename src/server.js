@@ -5,30 +5,35 @@ const config = require('./utils/config');
 
 const albums = require('./api/albums');
 const AlbumsValidator = require('./validator/albums');
-const AlbumsService = require('./services/AlbumsService');
+const AlbumsService = require('./services/postgres/AlbumsService');
 
 const songs = require('./api/songs');
 const SongsValidator = require('./validator/songs');
-const SongsService = require('./services/SongsService');
+const SongsService = require('./services/postgres/SongsService');
 
 const users = require('./api/users');
 const UsersValidator = require('./validator/users');
-const UsersService = require('./services/UsersService');
+const UsersService = require('./services/postgres/UsersService');
 
 const TokenManager = require('./tokenize/TokenManager');
 const authentications = require('./api/authentications');
 const AuthenticationsValidator = require('./validator/authentications');
-const AuthenticationsService = require('./services/AuthenticationsService');
+const AuthenticationsService = require('./services/postgres/AuthenticationsService');
 
 const playlists = require('./api/playlists');
 const PlaylistsValidator = require('./validator/playlists');
-const PlaylistService = require('./services/PlaylistsService');
+const PlaylistService = require('./services/postgres/PlaylistsService');
 
 const collaborations = require('./api/collaborations');
 const CollaborationsValidator = require('./validator/collaborations');
-const CollaborationsService = require('./services/CollaborationsService');
+const CollaborationsService = require('./services/postgres/CollaborationsService');
 
-const ActivitiesService = require('./services/ActivitiesService');
+const ActivitiesService = require('./services/postgres/ActivitiesService');
+
+const _exports = require('./api/exports');
+const ExportsValidator = require('./validator/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+
 const ClientError = require('./execption/ClientError');
 const init = async () => {
     const albumsService = new AlbumsService();
@@ -115,6 +120,14 @@ const init = async () => {
                 usersService,
                 validator: CollaborationsValidator
             }
+        },
+        {
+            plugin: _exports,
+            options: {
+                playlistsService,
+                service: ProducerService,
+                validator: ExportsValidator
+            }
         }
     ]);
 
@@ -141,6 +154,7 @@ const init = async () => {
             });
 
             newResponse.code(500);
+            console.log(response);
             return newResponse;
         }
 

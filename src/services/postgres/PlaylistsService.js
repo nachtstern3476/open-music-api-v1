@@ -1,8 +1,8 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const ClientError = require('../execption/ClientError');
-const NotFoundError = require('../execption/NotFoundError');
-const AuthorizationError = require('../execption/AuthorizationError');
+const ClientError = require('../../execption/ClientError');
+const NotFoundError = require('../../execption/NotFoundError');
+const AuthorizationError = require('../../execption/AuthorizationError');
 
 class PlaylistsService {
     constructor (collaborationsService) {
