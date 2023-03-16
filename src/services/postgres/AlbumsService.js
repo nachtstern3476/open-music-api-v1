@@ -4,8 +4,9 @@ const InvariantError = require('../../execption/InvariantError');
 const NotFoundError = require('../../execption/NotFoundError');
 
 class AlbumsService {
-    constructor () {
+    constructor (cacheService) {
         this._pool = new Pool();
+        this._cache = cacheService;
     }
 
     async addAlbum ({ name, year }) {
@@ -37,6 +38,54 @@ class AlbumsService {
         }
     }
 
+    async getAlbumCoverById (id) {
+        const query = {
+            text: 'SELECT cover FROM albums WHERE id=$1',
+            values: [id]
+        };
+
+        const result = await this._pool.query(query);
+
+        if (!result.rowCount) {
+            throw new NotFoundError(`Album dengan id '${id}' tidak ditemukan`);
+        }
+
+        return result.rows[0].cover;
+    }
+
+    async likeAlbum (userId, albumId) {
+        const checkForAlbum = {
+            text: 'SELECT * FROM albums WHERE id=$1',
+            values: [albumId]
+        };
+
+        const checkAlbum = await this._pool.query(checkForAlbum);
+        if (!checkAlbum.rowCount) {
+            throw new NotFoundError(`Album dengan id '${albumId}' tidak ditemukan`);
+        }
+
+        const checkForLike = {
+            text: 'SELECT * FROM album_likes WHERE user_id=$1',
+            values: [userId]
+        };
+
+        const checkLike = await this._pool.query(checkForLike);
+        const query = {
+            text: '',
+            values: [userId, albumId]
+        };
+
+        if (checkLike.rowCount) {
+            query.text = 'DELETE FROM album_likes WHERE user_id=$1 AND album_id=$2';
+        } else {
+            query.text = 'INSERT INTO album_likes (user_id, album_id) VALUES($1, $2)';
+        }
+
+        const result = await this._pool.query(query);
+        await this._cache.delete(`albumLikes:${albumId}`);
+        return result.command;
+    }
+
     async getAlbumById (id) {
         const query = {
             text: 'SELECT *, cover AS "coverUrl" FROM albums WHERE id=$1',
@@ -56,6 +105,23 @@ class AlbumsService {
         const songs = await this._pool.query(songQuery);
         result.rows[0].songs = songs.rows;
         return result.rows[0];
+    }
+
+    async getLikeCount (id) {
+        try {
+            const likes = await this._cache.get(`albumLikes:${id}`);
+
+            return { likes: parseInt(likes), isCache: true };
+        } catch (error) {
+            const query = {
+                text: 'SELECT * FROM album_likes WHERE album_id=$1',
+                values: [id]
+            };
+
+            const { rowCount } = await this._pool.query(query);
+            await this._cache.set(`albumLikes:${id}`, rowCount);
+            return { likes: rowCount, isCache: false };
+        }
     }
 
     async updateAlbumById (id, { name, year }) {

@@ -22,6 +22,13 @@ class StorageService {
             file.on('end', () => resolve(filename));
         });
     }
+
+    unlinkFile (oldFilename) {
+        const path = `${this._folder}/${oldFilename}`;
+        fs.unlink(path, (err) => {
+            if (err) console.log(err);
+        });
+    }
 }
 
 module.exports = StorageService;

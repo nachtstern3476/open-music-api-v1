@@ -26,9 +26,11 @@ class AlbumsHandler {
         const { cover } = request.payload;
 
         this._validator.validateAlbumCoverPayload(cover.hapi.headers);
+        const { id } = request.params;
+        const oldFilename = await this._service.getAlbumCoverById(id);
         const filename = await this._storageService.writeFile(cover, cover.hapi);
 
-        const { id } = request.params;
+        await this._storageService.unlinkFile(oldFilename);
         await this._service.addAlbumCover(id, filename);
 
         const response = h.response({
@@ -36,6 +38,20 @@ class AlbumsHandler {
             message: 'Sampul berhasil diunggah'
         });
 
+        response.code(201);
+        return response;
+    }
+
+    async postAlbumLikeHandler (request, h) {
+        const { id } = request.params;
+        const { id: userId } = request.auth.credentials;
+
+        const action = await this._service.likeAlbum(userId, id);
+        const message = action === 'INSERT' ? 'like' : 'unlike';
+        const response = h.response({
+            status: 'success',
+            message: `Berhasil ${message} album`
+        });
         response.code(201);
         return response;
     }
@@ -51,6 +67,20 @@ class AlbumsHandler {
             status: 'success',
             data: { album }
         };
+    }
+
+    async getAlbumLikeHandler (request, h) {
+        const { id } = request.params;
+        const { likes, isCache } = await this._service.getLikeCount(id);
+
+        const response = h.response({
+            status: 'success',
+            data: { likes }
+        });
+
+        if (isCache) response.header('X-Data-Source', 'cache');
+
+        return response;
     }
 
     async putAlbumByIdHandler (request) {
